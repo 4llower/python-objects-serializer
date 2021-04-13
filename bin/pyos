@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+
+import argparse
+from lib import SupportedSerializers, create_serializer, ConsoleColors
+import os
+
+parser = argparse.ArgumentParser(description="Specify the formats and paths")
+
+# Required args
+parser.add_argument('--src', help="path to file where placed object which need to pyos", type=str)
+parser.add_argument('--to', help="destination to file where need to put converted object", type=str)
+parser.add_argument('--format', help="format of final object")
+parser.add_argument('--primary', help="format of original object")
+
+# Optional args
+parser.add_argument('--env', help="path to environment file", type=str)
+
+args = parser.parse_args()
+
+if args.env:
+    print('Env loaded')
+elif args.src and args.to and args.format and args.primary:
+
+    # Catches SupportedSerializers inconsistency in params
+    if args.format not in SupportedSerializers.values() or args.primary not in SupportedSerializers.values():
+        print('\033[93m' + 'Choose --format or --primary in supported serializers list:' + '\033[0m')
+        print(' | '.join(SupportedSerializers.values()))
+        exit(0)
+
+    # Catches if path is incorrect
+    if not os.path.exists(args.src) or not os.path.exists(args.to):
+        print('\033[93m' + 'Specify to --to and --src correct values!' + '\033[0m')
+        exit(0)
+    try:
+        primary_serializer = create_serializer(args.primary)
+        target_serializer = create_serializer(args.format)
+
+        current_object = None
+
+        with open(args.src, 'r') as fp:
+            current_object = primary_serializer.load(fp)
+
+        with open(args.to, 'w') as fp:
+            target_serializer.dump(current_object, fp)
+
+        print(ConsoleColors.OKGREEN + "Serialize was completed. Check the %s source" % args.to + ConsoleColors.ENDC)
+    except Exception as e:
+        print(ConsoleColors.FAIL + "Serialize was crashed. %s" % e + ConsoleColors.ENDC)
+
+else:
+    print(ConsoleColors.WARNING + 'Follow the next instructions:\n' + ConsoleColors.ENDC)
+    print(ConsoleColors.OKBLUE + 'Environment pyos options ->' + ConsoleColors.ENDC)
+    print('Add the --env option where placed environment file\n')
+    print(ConsoleColors.OKBLUE + 'Flags pyos options -> ' + ConsoleColors.ENDC)
+    print('Add the flags:')
+    print(' --src(destination to initial file, ' + ConsoleColors.BOLD + '--lib ~/file.json)' + ConsoleColors.ENDC)
+    print(' --to(destination to target converted file, ' + ConsoleColors.BOLD + '--to ~/target.toml)' + ConsoleColors.ENDC)
+    print(' --format(format of target converted file, --format TOML)')
+    print(' --primary(format of initial file, --format JSON)')
+
+# pyos --src 1.json --to 2.json --primary JSON --format JSON
