@@ -1,5 +1,9 @@
 # Class with default necessary methods for fabric method factory()
+from .utils import serialized, deserialized
+
+
 class CommonSerializer:
+    @serialized
     def dump(self, obj, fp):
         """
         Serialize Python object to file
@@ -9,6 +13,7 @@ class CommonSerializer:
         """
         pass
 
+    @serialized
     def dumps(self, obj):
         """
         Serialize Python object to string
@@ -17,6 +22,7 @@ class CommonSerializer:
         """
         pass
 
+    @deserialized
     def load(self, fp):
         """
         Deserialize Python object from file
@@ -25,6 +31,7 @@ class CommonSerializer:
         """
         pass
 
+    @deserialized
     def loads(self, s):
         """
         Deserialize Python object from string
