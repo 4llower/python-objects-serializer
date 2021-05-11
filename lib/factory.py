@@ -2,22 +2,39 @@ from .serializers import JSONSerializer
 from .serializers import PICKLESerializer
 from .serializers import TOMLSerializer
 from .serializers import YAMLSerializer
+from enum import Enum
+
+
+class AvailableSerializers(Enum):
+    json = "JSON"
+    pickle = "PICKLE"
+    toml = "TOML"
+    yaml = "YAML"
 
 
 class SerializeFactory:
     @staticmethod
-    def create_serializer(serializer_type):
+    def validate_covers_all_available_serializers(serializer_type_to_serializer_object):
+        for value in [e.value for e in AvailableSerializers]:
+            if serializer_type_to_serializer_object.get(value) is None:
+                raise TypeError("%s doesn't exists in factory, but added to available serializer" % value)
+
+    @classmethod
+    def create_serializer(cls, serializer_type):
         """
         Fabric method which create serializer with depends from object type
         :param serializer_type: string such as JSON | YAML | PICKLE | TOML
         :return: serializer which has methods from common_serializer
         """
-        serializer_type_to_serializer_object = {"JSON": JSONSerializer(),
-                                                "PICKLE": PICKLESerializer(),
-                                                "TOML": TOMLSerializer(),
-                                                "YAML": YAMLSerializer()}
+        serializer_type_to_serializer_object = {AvailableSerializers.json.value: JSONSerializer(),
+                                                AvailableSerializers.pickle.value: PICKLESerializer(),
+                                                AvailableSerializers.toml.value: TOMLSerializer(),
+                                                AvailableSerializers.yaml.value: YAMLSerializer()}
+
+        cls.validate_covers_all_available_serializers(serializer_type_to_serializer_object)
 
         if not serializer_type_to_serializer_object.get(serializer_type):
             raise ValueError("%s doesn't support" % serializer_type)
 
         return serializer_type_to_serializer_object[serializer_type]
+
