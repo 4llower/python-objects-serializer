@@ -22,19 +22,13 @@ if args.env:
     print('Env loaded')
 elif args.src and args.to and args.format and args.primary:
 
-    # Catches SupportedSerializers inconsistency in params
-    if args.format not in SupportedSerializers.values() or args.primary not in SupportedSerializers.values():
-        print('\033[93m' + 'Choose --format or --primary in supported serializers list:' + '\033[0m')
-        print(' | '.join(SupportedSerializers.values()))
-        exit(0)
-
     # Catches if path is incorrect
     if not os.path.exists(args.src) or not os.path.exists(args.to):
         print('\033[93m' + 'Specify to --to and --src correct values!' + '\033[0m')
         exit(0)
     try:
-        primary_serializer = create_serializer(args.primary)
-        target_serializer = create_serializer(args.format)
+        primary_serializer = SerializeFactory.create_serializer(args.primary)
+        target_serializer = SerializeFactory.create_serializer(args.format)
 
         current_object = None
 
