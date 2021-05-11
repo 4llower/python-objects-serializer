@@ -1,5 +1,5 @@
 from setuptools import setup
 
 setup(name="python",
-      packages=['lib', 'lib/factory', 'lib/serializers', 'lib/resources'],
+      packages=['lib', 'resources'],
       scripts=['bin/pyos'])

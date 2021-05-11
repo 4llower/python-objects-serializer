@@ -1,7 +1,7 @@
-from ..serializers import JSONSerializer
-from ..serializers import PICKLESerializer
-from ..serializers import TOMLSerializer
-from ..serializers import YAMLSerializer
+from .serializers import JSONSerializer
+from .serializers import PICKLESerializer
+from .serializers import TOMLSerializer
+from .serializers import YAMLSerializer
 
 
 class SerializeFactory:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from resources import ConsoleColors
 from lib import SupportedSerializers, create_serializer, ConsoleColors
 import os
 
