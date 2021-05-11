@@ -17,7 +17,7 @@ class SerializeFactory:
     def validate_covers_all_available_serializers(serializer_type_to_serializer_object):
         for value in [e.value for e in AvailableSerializers]:
             if serializer_type_to_serializer_object.get(value) is None:
-                raise TypeError("%s doesn't exists in factory, but added to available serializer" % value)
+                raise TypeError("%s serializer doesn't exists in factory, but added to AvailableSerializers" % value)
 
     @classmethod
     def create_serializer(cls, serializer_type):
@@ -34,7 +34,7 @@ class SerializeFactory:
         cls.validate_covers_all_available_serializers(serializer_type_to_serializer_object)
 
         if not serializer_type_to_serializer_object.get(serializer_type):
-            raise ValueError("%s doesn't support" % serializer_type)
+            raise ValueError("%s serializer doesn't support" % serializer_type)
 
         return serializer_type_to_serializer_object[serializer_type]
 

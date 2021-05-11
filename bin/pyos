@@ -2,7 +2,7 @@
 
 import argparse
 from resources import ConsoleColors
-from lib.factory import SerializeFactory
+from lib import SerializeFactory
 import os
 
 parser = argparse.ArgumentParser(description="Specify the formats and paths")
