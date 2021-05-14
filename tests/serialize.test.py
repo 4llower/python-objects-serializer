@@ -1,16 +1,14 @@
-# from lib import SerializeFactory
+from lib import SerializeFactory
 
-# serializer = SerializeFactory.create_serializer("JSON")
-# obj = serializer.dumps({"hello": 228})
-# print(obj)
-
-d = 228
+serializer = SerializeFactory.create_serializer("JSON")
 
 
-def func(a, b):
-    c = a + b
-    return c + d
+def hello():
+    return 2 + 6
 
 
-code = func.__code__
-globals = func.__globals__
+# obj = serializer.dumps({"hello": {"anime": [1, 2, {"anime_object": 3.12312, "animeObject": "123112", "anime": hello}]}})
+obj = serializer.dumps({"hello": {"anime": [1, 2, {"anime_object": 3.12312, "animeObject": "123112"}]}})
+print(obj)
+
+
