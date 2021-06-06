@@ -19,6 +19,8 @@ eggs/
 .eggs/
 lib64/
 parts/
+battleground/*
+!battleground/.gitkeep
 sdist/
 var/
 wheels/
