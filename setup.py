@@ -1,8 +1,8 @@
 from setuptools import setup
 
 setup(
-    name='my_serializer',
-    packages=['lib', 'resources'],
+    name='python_object_serializer',
+    packages=['lib', 'lib/serializers', 'lib/serializers/utils', 'resources'],
     version='0.1.0',
     description='Python object serializer',
     author='Me',
@@ -11,5 +11,5 @@ setup(
     setup_requires=['pytest-runner'],
     tests_require=['pytest==4.4.1'],
     test_suite='tests/',
-    scripts=['convert']
+    scripts=['bin/pyos']
 )
