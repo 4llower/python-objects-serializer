@@ -21,8 +21,11 @@ def deserialize(obj):
             return dict_to_function(deserialize(obj["function"]))
         else:
             for key, value in obj.items():
-                response = create_standard_type(key, deserialize(value))
-                return response
+                if key == "None":
+                    return None
+                types = {**rude_types, **object_types}
+                return types[key](deserialize(value))
+
     elif type(obj).__name__ in object_types:
         response = []
         for item in obj:
@@ -32,14 +35,6 @@ def deserialize(obj):
         return str(obj)
     else:
         return response
-
-
-def create_standard_type(typename, value):
-    types = {**rude_types, **object_types}
-    if typename == "None":
-        return None
-    else:
-        return types[typename](value)
 
 
 def dict_to_function(obj):

@@ -71,5 +71,7 @@ def function_to_dict(func):
             continue
         globals_res[outer_obj_name] = serialize(members['__globals__'][outer_obj_name])
 
-    return {"__code__": special, "__globals__": globals_res, "__name__": name,
+    return {"__code__": special,
+            "__globals__": globals_res,
+            "__name__": name,
             "__defaults__": members['__defaults__']}
