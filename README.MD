@@ -3,7 +3,7 @@
 ## Install
 ```
 python3 -m venv venv
-bash setup.sh or sudo bash setup.sh
+bash setup.sh
 ```
 
 ## Using 

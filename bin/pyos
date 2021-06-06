@@ -3,7 +3,7 @@
 import argparse
 from resources import ConsoleColors
 from lib import SerializeFactory
-import os
+from os import path
 
 parser = argparse.ArgumentParser(description="Specify the formats and paths")
 
@@ -23,7 +23,11 @@ if args.env:
 elif args.src and args.to and args.format and args.primary:
 
     # Catches if path is incorrect
-    if not os.path.exists(args.src) or not os.path.exists(args.to):
+
+    src = path.abspath(args.src)
+    to = path.abspath(args.to)
+
+    if not path.exists(src):
         print('\033[93m' + 'Specify to --to and --src correct values!' + '\033[0m')
         exit(0)
     try:
@@ -32,10 +36,10 @@ elif args.src and args.to and args.format and args.primary:
 
         current_object = None
 
-        with open(args.src, 'r') as fp:
+        with open(src, 'r') as fp:
             current_object = primary_serializer.load(fp)
 
-        with open(args.to, 'w') as fp:
+        with open(to, 'w') as fp:
             target_serializer.dump(current_object, fp)
 
         print(ConsoleColors.OKGREEN + "Serialize was completed. Check the %s source" % args.to + ConsoleColors.ENDC)

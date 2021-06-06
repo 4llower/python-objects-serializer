@@ -5,7 +5,6 @@ from .utils import serialized, deserialized
 
 
 class TOMLSerializer(CommonSerializer):
-    @serialized
     def dump(self, obj, fp):
         toml.dump(obj, fp)
         return
@@ -14,7 +13,6 @@ class TOMLSerializer(CommonSerializer):
     def dumps(self, obj):
         return toml.dumps(obj)
 
-    @deserialized
     def load(self, fp):
         return toml.load(fp)
 

@@ -3,7 +3,6 @@ from .utils import deserialized, serialized
 
 
 class YAMLSerializer(CommonSerializer):
-    @serialized
     def dump(self, obj, fp):
         pass
 
@@ -11,7 +10,6 @@ class YAMLSerializer(CommonSerializer):
     def dumps(self, obj):
         pass
 
-    @deserialized
     def load(self, fp):
         pass
 

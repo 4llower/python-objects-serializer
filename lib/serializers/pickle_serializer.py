@@ -5,7 +5,6 @@ from .utils import deserialized, serialized
 
 
 class PICKLESerializer(CommonSerializer):
-    @serialized
     def dump(self, obj, fp):
         pickle.dump(obj, fp)
         return
@@ -14,7 +13,6 @@ class PICKLESerializer(CommonSerializer):
     def dumps(self, obj):
         return pickle.dumps(obj)
 
-    @deserialized
     def load(self, fp):
         return pickle.load(fp)
 
