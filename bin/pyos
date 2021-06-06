@@ -21,9 +21,7 @@ args = parser.parse_args()
 if args.env:
     print('Env loaded')
 elif args.src and args.to and args.format and args.primary:
-
     # Catches if path is incorrect
-
     src = path.abspath(args.src)
     to = path.abspath(args.to)
 
@@ -56,5 +54,3 @@ else:
     print(' --to(destination to target converted file, ' + ConsoleColors.BOLD + '--to ~/target.toml)' + ConsoleColors.ENDC)
     print(' --format(format of target converted file, --format TOML)')
     print(' --primary(format of initial file, --format JSON)')
-
-# pyos --src 1.json --to 2.json --primary JSON --format JSON
