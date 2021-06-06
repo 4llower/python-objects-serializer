@@ -1,6 +1,6 @@
 from types import FunctionType, CodeType
 
-from .types import object_types
+from .types import object_types, rude_types
 
 
 def deserialized(func):
@@ -17,17 +17,13 @@ def deserialize(obj):
             response = {}
             for key, item in obj['dict'].items():
                 response[deserialize(item['key'])] = deserialize(item['value'])
-        elif len(obj) == 1 and 'func' in obj:
-            return dict_to_function(deserialize(obj["func"]))
+        elif len(obj) == 1 and 'function' in obj:
+            return dict_to_function(deserialize(obj["function"]))
         else:
             for key, value in obj.items():
-                if key is None:
-                    response = None
-                else:
-                    response = object_types[key](deserialize(value))
-                    # ????
+                response = create_standard_type(key, deserialize(value))
                 return response
-    if type(obj).__name__ in object_types:
+    elif type(obj).__name__ in object_types:
         response = []
         for item in obj:
             response.append(deserialize(item))
@@ -38,18 +34,25 @@ def deserialize(obj):
         return response
 
 
-def dict_to_function(obj):
-    recursive_flag = False
-    obj_globals = obj['__globals__']
+def create_standard_type(typename, value):
+    types = {**rude_types, **object_types}
+    if typename == "None":
+        return None
+    else:
+        return types[typename](value)
 
-    for outer_obj_name, outer_obj in obj_globals.items():
-        if outer_obj_name == obj['__name__']:
-            recursive_flag = True
-        obj_globals[outer_obj_name] = deserialize(outer_obj)
-    obj_globals['__builtins__'] = __builtins__
+
+def dict_to_function(obj):
+    is_recursive = False
+    function_globals = obj['__globals__']
+
+    for name, out_obj in function_globals.items():
+        if name == obj['__name__']:
+            is_recursive = True
+        function_globals[name] = deserialize(out_obj)
+    function_globals['__builtins__'] = __builtins__
 
     code = obj['__code__']
-
     for i in range(len(code)):
         if i == 13 and code[i] is None:
             code[i] = b''
@@ -57,8 +60,10 @@ def dict_to_function(obj):
             code[i] = ()
         elif isinstance(code[i], list):
             code[i] = bytes(code[i])
-    func = FunctionType(CodeType(*code), obj_globals, obj['__name__'], obj['__defaults__'], None)
 
-    if recursive_flag:
+    func = FunctionType(CodeType(*code), function_globals, obj['__name__'], obj['__defaults__'], None)
+
+    if is_recursive:
         func.__getattribute__('__globals__')[obj['__name__']] = func
+
     return func

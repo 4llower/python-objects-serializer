@@ -11,7 +11,7 @@ def serialized(func):
                 raise TypeError('[@serialized] obj doesn\'t exists in kwargs')
             kwargs['obj'] = serialize(kwargs.get('obj'))
         if bool(args):
-            if not type(args[1]) is dict and not type(args[1]) is func:
+            if not type(args[1]) is dict and not type(args[1]) is FunctionType:
                 raise TypeError('[@serialized] first argument(exclude self) is\'t available to serialize')
         return func(*[args[0], serialize(args[1]), *(args[2:])], **kwargs)
 
@@ -34,39 +34,36 @@ def serialize(obj):
         result = {type(obj).__name__: serialized_dict}
 
     elif not object_types.get(type(obj).__name__) is None:
-        serialized_iterable = []
+        serialized_object_like = []
         for key in obj:
-            serialized_iterable.append(serialize(key))
-        result = {type(obj).__name__: serialized_iterable}
+            serialized_object_like.append(serialize(key))
+        result = {type(obj).__name__: serialized_object_like}
 
     elif type(obj) is FunctionType:
-        result = {type(obj).__name__: function_to_dict(obj)}
+        result = {type(obj).__name__: serialize(function_to_dict(obj))}
 
     return result
 
 
-def function_to_dict(function: FunctionType):
-    members = dict(inspect.getmembers(function))
-
-    attributes = dict(inspect.getmembers(members['__code__']))
-
+def function_to_dict(func):
+    members = dict(inspect.getmembers(func))
+    code_attrs = dict(inspect.getmembers(members['__code__']))
     special = []
-
     for attr_name in code_attributes:
         if attr_name == 'co_lnotab' or attr_name == 'co_code':
-            if len(list(attributes[attr_name])) == 0:
+            if len(list(code_attrs[attr_name])) == 0:
                 special.append(None)
             else:
-                special.append(list(attributes[attr_name]))
+                special.append(list(code_attrs[attr_name]))
         else:
-            if attributes[attr_name] == ():
+            if code_attrs[attr_name] == ():
                 special.append(None)
             else:
-                special.append(attributes[attr_name])
+                special.append(code_attrs[attr_name])
 
     name = members['__name__']
     globals_res = {"__name__": name}
-    for outer_obj_name in attributes['co_names']:
+    for outer_obj_name in code_attrs['co_names']:
         if outer_obj_name == name:
             globals_res[outer_obj_name] = outer_obj_name
             continue

@@ -1,5 +1,4 @@
 code_attributes = [
-    'co_name',
     'co_argcount',
     'co_posonlyargcount',
     'co_kwonlyargcount',
@@ -11,6 +10,7 @@ code_attributes = [
     'co_names',
     'co_varnames',
     'co_filename',
+    'co_name',
     'co_firstlineno',
     'co_lnotab',
     'co_freevars',
