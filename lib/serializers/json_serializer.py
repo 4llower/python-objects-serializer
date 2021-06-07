@@ -5,7 +5,8 @@ from .parsers.json import dumps, loads, dump, load
 
 class JSONSerializer(CommonSerializer):
     def dump(self, obj, fp):
-        return dump(obj, fp)
+        dump(obj, fp)
+        return
 
     @serialized
     def dumps(self, obj):

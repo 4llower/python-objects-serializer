@@ -5,7 +5,8 @@ from .parsers.yaml import dumps, loads, dump, load
 
 class YAMLSerializer(CommonSerializer):
     def dump(self, obj, fp):
-        return dump(obj, fp)
+        dump(obj, fp)
+        return
 
     @serialized
     def dumps(self, obj):

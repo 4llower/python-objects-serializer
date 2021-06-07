@@ -5,9 +5,9 @@ def dumps(obj):
     return pickle.dumps(obj)
 
 
-def dump(obj, file):
-    with open(file, 'wb') as f:
-        pickle.dump(obj, f)
+def dump(obj, fp):
+    s = dumps(obj)
+    fp.write(s)
 
 
 def loads(temp_str):

@@ -68,9 +68,9 @@ def dumps(obj):
     return dumps_complex(obj)
 
 
-def dump(obj, file):
-    with open(file, 'w') as f:
-        f.write(dumps(obj))
+def dump(obj, fp):
+    s = dumps(obj)
+    fp.write(s)
 
 
 def loads(temp_str):

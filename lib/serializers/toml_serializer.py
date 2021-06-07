@@ -5,7 +5,8 @@ from .parsers.toml import loads, dumps, dump, load
 
 class TOMLSerializer(CommonSerializer):
     def dump(self, obj, fp):
-        return dump(obj, fp)
+        dump(obj, fp)
+        return
 
     @serialized
     def dumps(self, obj):
