@@ -1,18 +1,19 @@
 from .common_serializer import CommonSerializer
 from .utils import deserialized, serialized
+from .parsers.yaml import dumps, loads, dump, load
 
 
 class YAMLSerializer(CommonSerializer):
     def dump(self, obj, fp):
-        pass
+        return dump(obj, fp)
 
     @serialized
     def dumps(self, obj):
-        pass
+        return dumps(obj)
 
     def load(self, fp):
-        pass
+        return load(fp)
 
     @deserialized
     def loads(self, s):
-        pass
+        return loads(s)

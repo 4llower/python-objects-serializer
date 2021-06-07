@@ -1,21 +1,19 @@
-import toml
-
 from .common_serializer import CommonSerializer
 from .utils import serialized, deserialized
+from .parsers.toml import loads, dumps, dump, load
 
 
 class TOMLSerializer(CommonSerializer):
     def dump(self, obj, fp):
-        toml.dump(obj, fp)
-        return
+        return dump(obj, fp)
 
     @serialized
     def dumps(self, obj):
-        return toml.dumps(obj)
+        return dumps(obj)
 
     def load(self, fp):
-        return toml.load(fp)
+        return load(fp)
 
     @deserialized
     def loads(self, s):
-        return toml.loads(s)
+        return loads(s)

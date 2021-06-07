@@ -1,22 +1,19 @@
-import json
-
 from .common_serializer import CommonSerializer
 from .utils import deserialized, serialized
+from .parsers.json import dumps, loads, dump, load
 
 
 class JSONSerializer(CommonSerializer):
-    @serialized
     def dump(self, obj, fp):
-        return json.dump(obj, fp)
+        return dump(obj, fp)
 
     @serialized
     def dumps(self, obj):
-        return json.dumps(obj)
+        return dumps(obj)
 
-    @deserialized
     def load(self, fp):
-        return json.load(fp)
+        return load(fp)
 
     @deserialized
     def loads(self, s):
-        return json.loads(s)
+        return loads(s)
