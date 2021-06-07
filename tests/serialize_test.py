@@ -2,7 +2,7 @@ from lib import SerializeFactory
 
 
 def test__serialization_funcs_1():
-    serializer = SerializeFactory.create_serializer("JSON")
+    serializer = SerializeFactory.create_serializer("TOML")
 
     def func(x):
         return x + 100

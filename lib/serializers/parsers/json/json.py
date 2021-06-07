@@ -1,5 +1,3 @@
-import re
-
 from .resources import *
 from .exceptions import *
 
