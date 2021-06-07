@@ -6,7 +6,7 @@ def dumps(obj):
 
 
 def dump(obj, fp):
-    s = dumps(obj)
+    s = dumps(obj).decode(encoding='unicode_escape')
     fp.write(s)
 
 
@@ -14,7 +14,5 @@ def loads(temp_str):
     return pickle.loads(temp_str)
 
 
-def load(file):
-    with open(file, 'rb') as f:
-        result = pickle.load(f)
-        return result
+def load(fp):
+    return loads(fp.read())

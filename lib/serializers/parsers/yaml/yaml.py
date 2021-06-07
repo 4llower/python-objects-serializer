@@ -271,7 +271,5 @@ def loads(temp_str):
     return loads_obj(temp_str)
 
 
-def load(file):
-    with open(file, 'r') as f:
-        result = f.read()
-        return loads(result)
+def load(fp):
+    return loads(fp.read())

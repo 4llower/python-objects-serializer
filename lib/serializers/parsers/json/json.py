@@ -56,8 +56,7 @@ def dumps(obj):
 def load(fp):
     if fp.encoding != FILE_ENCODING:
         raise ValueError
-    s = fp.read()
-    return loads(s)
+    return loads(fp.read())
 
 
 def loads(s):
