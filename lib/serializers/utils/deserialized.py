@@ -12,13 +12,11 @@ def deserialized(func):
 
 def deserialize(obj):
     response = None
-    print(obj)
     if type(obj) is dict:
         if len(obj) == 1 and 'dict' in obj:
             response = {}
             for key, item in obj['dict'].items():
                 response[deserialize(item['key'])] = deserialize(item['value'])
-            print(response)
         elif len(obj) == 1 and 'function' in obj:
             return dict_to_function(deserialize(obj["function"]))
         else:
@@ -41,6 +39,7 @@ def deserialize(obj):
 
 def dict_to_function(obj):
     is_recursive = False
+
     function_globals = obj['__globals__']
 
     for name, out_obj in function_globals.items():

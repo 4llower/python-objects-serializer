@@ -1,5 +1,6 @@
-from .resources import *
-from .exceptions import *
+import re
+
+from .resources import FLOAT_REGEX, INT_REGEX, STR_REGEX, DICT_REGEX, LIST_REGEX
 
 
 def dump(obj, fp):
@@ -7,206 +8,82 @@ def dump(obj, fp):
     fp.write(s)
 
 
-def dumps(obj):
-    def dump_complex(complex_obj):
-        ans = ""
-        tp = type(complex_obj)
-        if tp == dict:
-            ans += OBJECT_START
-            for name, o in complex_obj.items():
-                ans += f"\"{name}\": "
-                ans += dump_obj(o)
-                if list(complex_obj.keys())[-1] != name:
-                    ans += FIELDS_SEPARATOR + " "
-            ans += OBJECT_END
-        elif tp == list or tp == tuple:
-            ans += ARRAY_START
-            for i in range(len(complex_obj)):
-                ans += dump_obj(complex_obj[i])
-                if i != len(complex_obj) - 1:
-                    ans += FIELDS_SEPARATOR + " "
-            ans += ARRAY_END
-        return ans
-
-    def dump_obj(o):
-        string = ""
-        tp = type(o)
-        if tp == bool:
-            if o:
-                string += JSON_TRUE
-            else:
-                string += JSON_FALSE
-        elif o is None:
-            string += JSON_NAN
-        elif isinstance(o, (int, bytes, float, complex)):
-            string += str(o)
-        elif tp != str:
-            string += dump_complex(o)
-        else:
-            string += "\"" + str(o).replace("\n", " ") + "\""
-
-        return string
-
-    s = dump_complex(obj)
-    return s
-
-
 def load(fp):
-    if fp.encoding != FILE_ENCODING:
-        raise ValueError
     return loads(fp.read())
 
 
+def dumps(obj):
+    if obj is None:
+        return "null"
+    elif isinstance(obj, bool):
+        return str(obj).lower()
+    elif isinstance(obj, (int, float)):
+        return str(obj)
+    elif isinstance(obj, str):
+        return "\"" + obj.replace('\\', '\\\\').replace('\n', '\\n') + "\""
+    elif isinstance(obj, list):
+        return f"[{','.join(dumps(o) for o in obj)}]"
+    elif isinstance(obj, dict):
+        return "{" + ",".join(f"\"{key}\":{dumps(val)}" for key, val in obj.items()) + "}"
+    else:
+        raise ValueError(f"Wrong type {type(obj)}")
+
+
 def loads(s):
-    assert isinstance(s, str)
-    ind = 0
+    s = s.strip("\n ")
+    if s == "null":
+        return None
+    elif s == "false" or s == "true":
+        return s[0] == 't'
+    elif re.fullmatch(INT_REGEX, s):
+        return int(s)
+    elif re.fullmatch(FLOAT_REGEX, s):
+        return float(s)
+    elif re.fullmatch(DICT_REGEX, s):
+        a = {}
+        for ss in split(re.fullmatch(DICT_REGEX, s).group(1), ','):
+            key, value = tuple(split(ss, ':'))
+            a[loads(key)] = loads(value)
+        return a
+    elif re.fullmatch(LIST_REGEX, s):
+        return [loads(ss) for ss in split(re.fullmatch(LIST_REGEX, s).group(1), ',')]
+    elif re.fullmatch(STR_REGEX, s):
+        return re.fullmatch(STR_REGEX, s).group(1).replace('\\n', '\n').replace('\\\\', '\\')
+    else:
+        raise ValueError(f"Wrong string \"{s}\"")
 
-    def parse_complex(s, index=-1):
-        assert (isinstance(s, str) or isinstance(index, int))
-        nonlocal ind
-        ind = index + 1
-        ans = {}
-        field_name = ""
-        value = ""
-        is_field = True
-        is_value = False
-        value_quotes = False
-        quotes = False
-        while ind < len(s):
-            if not quotes and s[ind].isspace():
-                ind += 1
-                continue
-            if s[ind] == '\"' or s[ind] == '\'':
-                if is_field and not quotes:
-                    if len(field_name) != 0:
-                        raise JSONDecode()
-                    quotes = True
-                elif is_field and quotes:
-                    if s[ind - 1] == '\\':
-                        field_name += s[ind]
-                    else:
-                        quotes = False
-                elif is_value and not quotes:
-                    if len(value) != 0:
-                        raise Exception
-                    else:
-                        quotes = value_quotes = True
-                elif is_value and quotes:
-                    if s[ind - 1] == '\\':
-                        value += s[ind]
-                    quotes = False
-            elif not quotes:
-                if s[ind] == FIELDS_VALUE_SEPARATOR:
-                    is_field = not is_field
-                    is_value = not is_value
-                elif s[ind] == ARRAY_START:
-                    value = parse_array(s, ind)
-                elif s[ind] == FIELDS_SEPARATOR and is_value:
-                    if not value_quotes and isinstance(value, str):
-                        value = try_parse(value)
-                    ans[field_name] = value
-                    field_name = ""
-                    value = ""
-                    value_quotes = False
-                    is_field = True
-                    is_value = False
-                elif s[ind] == '.' and is_value:
-                    if not s[ind + 1].isdigit() or '.' in value:
-                        raise JSONDecode()
-                    value += s[ind]
-                elif s[ind] == OBJECT_START:
-                    if len(value) != 0:
-                        raise JSONDecode()
-                    ans[field_name] = parse_complex(s, ind)
-                    field_name = ""
-                    value_quotes = False
-                    is_value = False
-                    is_field = True
-                elif s[ind] == OBJECT_END:
-                    if field_name != "":
-                        if not value_quotes and isinstance(value, str):
-                            value = try_parse(value)
 
-                        ans[field_name] = value
-                    ind += 1
-                    break
-                elif is_value:
-                    value += s[ind]
-            elif is_field:
-                field_name += s[ind]
-            elif is_value:
-                value += s[ind]
-            ind += 1
-        return ans
-
-    def parse_array(s, index=-1):
-        assert (isinstance(s, str) or isinstance(index, int))
-
-        nonlocal ind
-        ind = index + 1
-        ans = []
-        value = ""
-        quotes = False
-        value_quotes = False
-        while ind < len(s):
-            if not quotes and s[ind].isspace():
-                ind += 1
-                continue
-            if s[ind] == '\"' or s[ind] == '\'':
-                if not quotes:
-                    if len(value) != 0:
-                        raise JSONDecode()
-                    quotes = True
-                    value_quotes = True
-                elif quotes:
-                    quotes = False
-            elif not quotes:
-                if s[ind] == '.':
-                    if not s[ind + 1].isdigit() or '.' in value:
-                        raise JSONDecode()
-                    value += s[ind]
-                elif s[ind] == FIELDS_SEPARATOR:
-                    if not value_quotes and isinstance(value, str):
-                        value = try_parse(value)
-                    ans.append(value)
-                    value = ""
-                    value_quotes = False
-                elif s[ind] == OBJECT_START:
-                    value = parse_complex(s, ind + 1)
-                elif s[ind] == ARRAY_END:
-                    if value == "":
-                        return ans
-                    if not value_quotes and isinstance(value, str):
-                        value = try_parse(value)
-                    ans.append(value)
-                    break
-                else:
-                    value += s[ind]
-            else:
-                value += s[ind]
-            ind += 1
-
-        return ans
-
-    def try_parse(value):
-        val = ""
-
-        if value == JSON_FALSE or value == PYTHON_FALSE:
-            val = False
-        elif value == JSON_TRUE or value == PYTHON_TRUE:
-            val = True
-        elif value == JSON_NAN or value == PYTHON_NAN:
-            val = None
+def split(s, mark):
+    a = []
+    depth = 0
+    tmp = ""
+    in_str = False
+    marks = 0
+    for i in range(len(s)):
+        if is_quotation(s, i):
+            in_str = not in_str
+        if not in_str:
+            if s[i] == '[' or s[i] == '{':
+                depth += 1
+            elif s[i] == ']' or s[i] == '}':
+                depth -= 1
+        if s[i] == mark and depth == 0 and not in_str:
+            a.append(tmp)
+            tmp = ""
+            marks += 1
         else:
-            try:
-                val = int(value)
-            except ValueError:
-                try:
-                    val = float(value)
-                except ValueError:
-                    return val
+            tmp += s[i]
+    if tmp.strip("\n ") != "":
+        a.append(tmp)
+    return a
 
-        return val
 
-    ans = parse_complex(s)
-    return ans['']
+def is_quotation(s, ind):
+    if s[ind] != "\"":
+        return False
+    ind -= 1
+    cnt = 0
+    while ind >= 0 and s[ind] == "\\":
+        ind -= 1
+        cnt += 1
+    return cnt % 2 == 0
